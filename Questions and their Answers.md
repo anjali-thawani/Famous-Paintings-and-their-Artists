@@ -270,3 +270,184 @@ Edvard Munch     	  |64             |
 Juan Gris	          |66             |
 Sir Joshua Reynolds	|66             |
 
+**18.** Are there museuems without any paintings?
+````sql
+select m.name
+from museum as m
+left join work as w
+on w.museum_id=m.museum_id
+where w.work_id is null;
+````
+
+
+**19.** Identify the paintings whose asking price is less than 50% of its regular price
+````sql
+select distinct w.name as painting, p.sale_price, p.regular_price, 0.5 * regular_price as '50% of regularprice' 
+from work as w
+join product_size as p
+on w.work_id=p.work_id
+where p.sale_price < (0.5 * p.regular_price);
+````
+
+**20.** Which canva size costs the most?
+````sql
+select c.label, p.sale_price 
+from product_size as p
+join canvas_size as c
+on c.size_id = p.size_id
+order by p.sale_price desc 
+limit 1;
+````
+
+
+**21.** Identify the museums with invalid city information in the given dataset
+````sql
+select *
+from museum
+where city regexp '^[0-9]';
+````
+
+**22.** Fetch the top 10 most famous painting subject
+````sql
+select s.subject as famous_paintings_subject, count(s.subject) as no_of_sub
+from subject as s
+group by s.subject
+order by count(s.subject) desc
+limit 10;
+````
+
+**23.** Identify the museums which are open on both Sunday and Monday. Display museum name, city.
+````sql
+select m.name as museum_name, m.city
+from museum as m
+join museum_hours as mh
+on m.museum_id= mh.museum_id
+where mh.day in ( 'Sunday', 'Monday')
+group by m.name, m.city
+having count(mh.day) = 2
+order by m.name;
+````
+
+**24.** How many museums are open every single day?
+````sql
+with cte as (select count(mh.museum_id) as total_museum
+from museum_hours as mh
+group by mh.museum_id
+having count(mh.day) = 7)
+select count(*) as 'no. of museum' from cte;
+````
+
+**25.** Which are the top 5 most popular museum? (Popularity is defined based on most no of paintings in a museum)
+````sql
+select m.name, count(w.museum_id) as 'no_of_paintings'
+from museum as m
+join work as w
+on w.museum_id= m.museum_id
+group by w.museum_id
+order by count(w.museum_id) desc
+limit 5;
+````
+
+**26.** Who are the top 5 most popular artist? (Popularity is defined based on most no of paintings done by an artist)
+````sql
+select a.full_name as artist, count(w.artist_id) as no_of_painting
+from artist as a
+join work as w
+on w.artist_id= a.artist_id
+group by w.artist_id
+order by count(w.artist_id) desc
+limit 5;
+````
+
+**27.** Display the 3 least popular canva sizes
+````sql
+select c.label, count(p.size_id)
+from canvas_size as c
+join product_size as p
+on c.size_id = p.size_id
+group by p.size_id
+order by count(p.size_id)
+limit 3;
+````
+
+**28.** Which museum has the most no of most popular painting style?
+````sql
+select m.name, w.style, count(w.style) as no_of_paintings
+from work as w
+join museum as m
+on m.museum_id = w.museum_id 
+group by m.name, w.style
+order by count(w.style) desc
+limit 1;
+````
+
+**29.** Identify the artists whose paintings are displayed in multiple countries
+````sql
+select a.full_name, count(m.country) as no_of_country
+from artist as a 
+join work as w
+on w.artist_id = a.artist_id
+join museum as m
+on m.museum_id = w.museum_id
+group by a.full_name
+having count(m.country) >2;
+````
+
+
+
+**30.** Identify the artist and the museum where the most expensive and least expensive painting is placed. Display the artist name, sale_price, painting name, museum name, museum city and canvas label
+````sql
+(select a.full_name as artist, m.name as museum , max(sale_price) as sale_price, m.city, w.name as painting, 'most_expensive' as remark
+from artist as a 
+join work as w
+on w.artist_id = a.artist_id
+join product_size as p
+on w.work_id = p.work_id
+join museum as m
+on m.museum_id = w.museum_id
+group by a.full_name, m.name, m.city, w.name
+order by max(sale_price)desc
+limit 1)
+union
+(select a.full_name as artist, m.name as museum , min(sale_price) as sale_price, m.city, w.name as painting, 'least_expensive' as remark
+from artist as a 
+join work as w
+on w.artist_id = a.artist_id
+join product_size as p
+on w.work_id = p.work_id
+join museum as m
+on m.museum_id = w.museum_id
+group by a.full_name, m.name, m.city, w.name
+order by min(sale_price) asc
+limit 1);
+````
+
+**31.** Which country has the 5th highest no of paintings?
+````sql
+select m.country, count(w.name)as 'no of paintings'
+from work as w
+join museum as m
+on w.museum_id= m.museum_id
+group by m.country
+order by count(w.name) desc
+limit 1 offset 4;
+````
+
+**32.** Which are the 3 most popular and 3 least popular painting styles?
+````sql
+(select w.style as Style, count(w.style) as style_count, 'most_popular' as popularity
+from work as w
+where w.style is not null
+group by w.style
+order by count(w.style) asc
+limit 3)
+union
+(select w.style as Style, count(w.style) as style_count, 'least_popular' as popularity
+from work as w
+where w.style is not null
+group by style
+order by count(w.style) desc
+limit 3);
+````
+
+
