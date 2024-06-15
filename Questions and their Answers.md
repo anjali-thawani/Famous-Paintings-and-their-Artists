@@ -272,13 +272,16 @@ Sir Joshua Reynolds	|66             |
 
 **18.** Are there museuems without any paintings?
 ````sql
-select m.name
+select m.name as museum
 from museum as m
 left join work as w
 on w.museum_id=m.museum_id
 where w.work_id is null;
 ````
-
+**Results:**
+museum|
+------|
+0     |
 
 **19.** Identify the paintings whose asking price is less than 50% of its regular price
 ````sql
@@ -288,6 +291,15 @@ join product_size as p
 on w.work_id=p.work_id
 where p.sale_price < (0.5 * p.regular_price);
 ````
+**Results:**
+paintings                                               | sale_price| regular_price | 50% of its regular price |
+--------------------------------------------------------|-----------|---------------|--------------------------|
+Ducks Resting in Sunshine	                              |285	      |575	          |287.5                     |
+Ducks Resting in Sunshine	                              |305	      |645	          |322.5                     |
+Portrait of Mr. and Mrs. Thomas Mifflin (Sarah Morris)	|20	        |95	            |47.5                      |
+Portrait of Mr. and Mrs. Thomas Mifflin (Sarah Morris)	|20	        |85	            |42.5                      |
+Passion Flowers and Hummingbirds	                      |585	      |1245	          |622.5                     |
+A Street in Paris in May 1871	                          |1025       |2235	          |1117.5                    |
 
 **20.** Which canva size costs the most?
 ````sql
@@ -298,7 +310,10 @@ on c.size_id = p.size_id
 order by p.sale_price desc 
 limit 1;
 ````
-
+**Results:**
+canva_size                 |sale_price|
+---------------------------|----------|
+48" x 96"(122 cm x 244 cm) |1115      |
 
 **21.** Identify the museums with invalid city information in the given dataset
 ````sql
@@ -306,7 +321,9 @@ select *
 from museum
 where city regexp '^[0-9]';
 ````
-
+**Results:**
+museum_id name                       address city       state  postal country phone url
+34        The State Hermitage Museum 2       Sankt-Peterburg 190000 Russia 7 812 710-90-79 https://www.hermitagemuseum.org/wps/portal/hermitage/
 **22.** Fetch the top 10 most famous painting subject
 ````sql
 select s.subject as famous_paintings_subject, count(s.subject) as no_of_sub
