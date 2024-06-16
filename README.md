@@ -5,13 +5,13 @@ The objective of this project is to analyze the "Famous Paintings and Their Arti
 This project was a fantastic way to practice my SQL skills while learning more about iconic artworks and their creators.
 
 ### Table used
-Artist
-Canvas_size
-Work
-Subject
-Product
-Museum
-Museum_hours
+- Artist
+- Canvas_size
+- Work
+- Subject
+- Product_size
+- Museum
+- Museum_hours
 
 ### Data Source 
 Kaggle
