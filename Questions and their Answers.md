@@ -322,8 +322,11 @@ from museum
 where city regexp '^[0-9]';
 ````
 **Results:**
-museum_id name                       address city       state  postal country phone url
-34        The State Hermitage Museum 2       Sankt-Peterburg 190000 Russia 7 812 710-90-79 https://www.hermitagemuseum.org/wps/portal/hermitage/
+museum_id |name                       |address       |city |state           |postal |country |phone           |url  
+----------|---------------------------|--------------|-----|----------------|-------|--------|----------------|------------|
+34        |The State Hermitage Museum |Palace Square |2    |Sankt-Peterburg |190000 |Russia  |7 812 710-90-79 | https://www.hermitagemuseum.org/wps/portal/hermitage/|
+
+
 **22.** Fetch the top 10 most famous painting subject
 ````sql
 select s.subject as famous_paintings_subject, count(s.subject) as no_of_sub
@@ -332,6 +335,20 @@ group by s.subject
 order by count(s.subject) desc
 limit 10;
 ````
+**Results:**
+famous_paintings_subject  |no_of_sub |
+--------------------------|----------|
+Portraits	                |2140      |
+Nude	                    |1050      |
+Landscape Art	            |990       |
+Rivers/Lakes	            |960       |
+Abstract/Modern Art	      |914       |
+Flowers	                  |914       |
+Still-Life	              |790       |
+Seascapes	                |648       |
+Marine Art/Maritime	      |536       |
+Horses	                  |530       |
+
 
 **23.** Identify the museums which are open on both Sunday and Monday. Display museum name, city.
 ````sql
@@ -345,6 +362,17 @@ having count(mh.day) = 2
 order by m.name;
 ````
 
+**Results:**
+museum_name                                          |city          | 
+-----------------------------------------------------|--------------|
+Chrysler Museum of Art	                             |Norfolk       |
+Cleveland Museum Of Art	                             |Cleveland     | 
+Columbus Museum of Art	                             |Columbus      |
+Dallas Museum of Art	                               |Dallas        |
+Fine Arts Museums of San Francisco Legion of Honor	 |San Francisco |
+Hungarian National Gallery	                         |Budapest      |
+Indianapolis Museum of Art	                         |Indianapolis  |
+
 **24.** How many museums are open every single day?
 ````sql
 with cte as (select count(mh.museum_id) as total_museum
@@ -353,10 +381,14 @@ group by mh.museum_id
 having count(mh.day) = 7)
 select count(*) as 'no. of museum' from cte;
 ````
+**Results:**
+no. of museum|
+-------------|
+0            |
 
 **25.** Which are the top 5 most popular museum? (Popularity is defined based on most no of paintings in a museum)
 ````sql
-select m.name, count(w.museum_id) as 'no_of_paintings'
+select m.name as museum, count(w.museum_id) as 'no_of_paintings'
 from museum as m
 join work as w
 on w.museum_id= m.museum_id
@@ -364,6 +396,15 @@ group by w.museum_id
 order by count(w.museum_id) desc
 limit 5;
 ````
+**Results:**
+museum                          |no_of_paintings |
+--------------------------------|----------------|
+The Metropolitan Museum of Art	|939             |
+Rijksmuseum	                    |452             |
+National Gallery	              |423             |
+National Gallery of Art	        |375             |
+The Barnes Foundation	          |350             |
+
 
 **26.** Who are the top 5 most popular artist? (Popularity is defined based on most no of paintings done by an artist)
 ````sql
@@ -376,6 +417,16 @@ order by count(w.artist_id) desc
 limit 5;
 ````
 
+**Results:**
+artist                 |no_of_painting |
+-----------------------|---------------|
+Pierre-Auguste Renoir	 |469            |
+Claude Monet	         |378            |
+Vincent Van Gogh	     |308            |
+Maurice Utrillo	       |253            |
+Albert Marquet	       |233            |
+
+
 **27.** Display the 3 least popular canva sizes
 ````sql
 select c.label, count(p.size_id)
@@ -387,6 +438,14 @@ order by count(p.size_id)
 limit 3;
 ````
 
+**Results:**
+label                      |no_of_canvas|
+---------------------------|------------|
+45" x 32"(114 cm x 81 cm)	 |2           |
+24" x 29"(61 cm x 74 cm)	 |2           |
+32" x 18"(81 cm x 46 cm)	 |2           |
+
+
 **28.** Which museum has the most no of most popular painting style?
 ````sql
 select m.name, w.style, count(w.style) as no_of_paintings
@@ -397,6 +456,11 @@ group by m.name, w.style
 order by count(w.style) desc
 limit 1;
 ````
+
+**Results:**
+name                            | style         |no_of_paintings|
+--------------------------------|---------------|---------------|
+The Metropolitan Museum of Art	|Impressionism	|244            |
 
 **29.** Identify the artists whose paintings are displayed in multiple countries
 ````sql
@@ -410,6 +474,15 @@ group by a.full_name
 having count(m.country) >2;
 ````
 
+**Results:**
+artist            |no_of_country |
+------------------|--------------|
+Vincent Van Gogh	|139           |
+Johannes Vermeer	|18            |
+Paul Cézanne	    |123           |
+Leonardo Da Vinci	|5             |
+Claude Monet	    |190           |
+Edgar Degas	      |80            |
 
 
 **30.** Identify the artist and the museum where the most expensive and least expensive painting is placed. Display the artist name, sale_price, painting name, museum name, museum city and canvas label
@@ -439,6 +512,12 @@ order by min(sale_price) asc
 limit 1);
 ````
 
+**Results:**
+artist                 |museum                        |sale_price |city    | painting                                         |remark         |
+-----------------------|------------------------------|-----------|--------|--------------------------------------------------|---------------|
+Peter Paul Rubens	     |The Prado Museum	            |1115       |	Madrid |	Fortuna	                                        |most_expensive |
+Adélaïde Labille-Guiard|The Metropolitan Museum of Art|10         |New York|	Portrait of Madame Labille-Guyard and Her Pupils|least_expensive|
+
 **31.** Which country has the 5th highest no of paintings?
 ````sql
 select m.country, count(w.name)as 'no of paintings'
@@ -449,6 +528,10 @@ group by m.country
 order by count(w.name) desc
 limit 1 offset 4;
 ````
+**Results:**
+country |no_of_paintings|
+--------|---------------|
+Spain	  |196            |
 
 **32.** Which are the 3 most popular and 3 least popular painting styles?
 ````sql
@@ -466,5 +549,15 @@ group by style
 order by count(w.style) desc
 limit 3);
 ````
+
+**Results:**
+style               |style_count |popularity   |
+--------------------|------------|-------------|
+Japanese Art	      |70          |most_popular |
+Art Nouveau	        |108	       |most_popular |
+Avant-Garde	        |146	       |most_popular |
+Impressionism	      |3078	       |least_popular|
+Post-Impressionism	|1672	       |least_popular|
+Realism	            |1179	       |least_popular|
 
 
